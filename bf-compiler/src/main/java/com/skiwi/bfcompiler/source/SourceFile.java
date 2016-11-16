@@ -16,7 +16,7 @@ public class SourceFile {
         this.path = path;
     }
 
-    public IntStream getTokenStream() throws IOException {
+    public IntStream getCharacterStream() throws IOException {
         return Files.lines(path, StandardCharsets.UTF_8)
             .flatMapToInt(CharSequence::chars);
     }
