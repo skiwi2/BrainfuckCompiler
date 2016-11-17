@@ -22,6 +22,10 @@ public class ASTNode {
         this.expression = expression;
     }
 
+    public Expression getExpression() {
+        return expression;
+    }
+
     public ASTNode getParent() {
         return parent;
     }
