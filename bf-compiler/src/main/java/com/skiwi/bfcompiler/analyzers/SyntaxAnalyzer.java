@@ -11,6 +11,7 @@ import com.skiwi.bfcompiler.expression.source.LoopExpression;
 import com.skiwi.bfcompiler.expression.source.OutputExpression;
 import com.skiwi.bfcompiler.expression.source.PointerLeftExpression;
 import com.skiwi.bfcompiler.expression.source.PointerRightExpression;
+import com.skiwi.bfcompiler.options.BFOptions;
 import com.skiwi.bfcompiler.tokens.Token;
 
 import java.util.stream.Stream;
@@ -19,13 +20,7 @@ import java.util.stream.Stream;
  * @author Frank van Heeswijk
  */
 public class SyntaxAnalyzer {
-    private final Stream<Token> tokens;
-
-    public SyntaxAnalyzer(final Stream<Token> tokens) {
-        this.tokens = tokens;
-    }
-
-    public AST getAST() {
+    public AST getAST(final Stream<Token> tokens) {
         ASTNode rootNode = new ASTNode(new RootExpression());
         AST ast = new AST(rootNode);
         ASTNode currentNode = rootNode;

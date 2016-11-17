@@ -10,6 +10,7 @@ import com.skiwi.bfcompiler.expression.source.LoopExpression;
 import com.skiwi.bfcompiler.expression.source.OutputExpression;
 import com.skiwi.bfcompiler.expression.source.PointerLeftExpression;
 import com.skiwi.bfcompiler.expression.source.PointerRightExpression;
+import com.skiwi.bfcompiler.options.BFOptions;
 import com.skiwi.bfcompiler.source.SourceFile;
 import org.junit.Test;
 
@@ -32,7 +33,7 @@ public class SyntaxAnalyzerTest {
         Path file = Paths.get(getClass().getClassLoader().getResource("hello-world.bf").toURI());
         SourceFile sourceFile = new SourceFile(file);
         LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer(sourceFile);
-        SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer(lexicalAnalyzer.getTokens());
+        SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer();
 
         ASTNode rootNode = new ASTNode(new RootExpression());
         AST ast = new AST(rootNode);
@@ -190,7 +191,7 @@ public class SyntaxAnalyzerTest {
         rootNode.addChild(new ASTNode(new IncrementExpression()));
         rootNode.addChild(new ASTNode(new OutputExpression()));
 
-        assertEquals(ast, syntaxAnalyzer.getAST());
+        assertEquals(ast, syntaxAnalyzer.getAST(lexicalAnalyzer.getTokens()));
     }
 
     @Test(expected = InvalidSyntaxException.class)
@@ -198,9 +199,9 @@ public class SyntaxAnalyzerTest {
         Path file = Paths.get(getClass().getClassLoader().getResource("invalid-syntax-jump-back.bf").toURI());
         SourceFile sourceFile = new SourceFile(file);
         LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer(sourceFile);
-        SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer(lexicalAnalyzer.getTokens());
+        SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer();
 
-        assertNotNull(syntaxAnalyzer.getAST());
+        assertNotNull(syntaxAnalyzer.getAST(lexicalAnalyzer.getTokens()));
     }
 
     @Test(expected = InvalidSyntaxException.class)
@@ -208,9 +209,9 @@ public class SyntaxAnalyzerTest {
         Path file = Paths.get(getClass().getClassLoader().getResource("invalid-syntax-jump-back-in-loop.bf").toURI());
         SourceFile sourceFile = new SourceFile(file);
         LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer(sourceFile);
-        SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer(lexicalAnalyzer.getTokens());
+        SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer();
 
-        assertNotNull(syntaxAnalyzer.getAST());
+        assertNotNull(syntaxAnalyzer.getAST(lexicalAnalyzer.getTokens()));
     }
 
     @Test(expected = InvalidSyntaxException.class)
@@ -218,8 +219,8 @@ public class SyntaxAnalyzerTest {
         Path file = Paths.get(getClass().getClassLoader().getResource("invalid-syntax-jump-past-no-loop.bf").toURI());
         SourceFile sourceFile = new SourceFile(file);
         LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer(sourceFile);
-        SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer(lexicalAnalyzer.getTokens());
+        SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer();
 
-        assertNotNull(syntaxAnalyzer.getAST());
+        assertNotNull(syntaxAnalyzer.getAST(lexicalAnalyzer.getTokens()));
     }
 }
