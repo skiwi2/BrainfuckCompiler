@@ -3,8 +3,12 @@ package com.skiwi.bfcompiler.ast;
 import com.skiwi.bfcompiler.expression.Expression;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -20,6 +24,22 @@ public class ASTNode {
 
     public ASTNode(final Expression expression) {
         this.expression = expression;
+    }
+
+    public static ASTNode newWithChild(final Expression expression, final ASTNode node) {
+        return newWithChildren(expression, Arrays.asList(node));
+    }
+
+    public static ASTNode newWithChildren(final Expression expression, final List<ASTNode> nodes) {
+        ASTNode newNode = new ASTNode(expression);
+        nodes.forEach(newNode::addChild);
+        return newNode;
+    }
+
+    public static ASTNode newWithMappedChildren(final Expression expression, final List<ASTNode> nodes, final UnaryOperator<ASTNode> mapper) {
+        ASTNode newNode = new ASTNode(expression);
+        nodes.stream().map(mapper).forEach(newNode::addChild);
+        return newNode;
     }
 
     public Expression getExpression() {

@@ -3,6 +3,7 @@ package com.skiwi.bfcompiler.generators;
 import com.skiwi.bfcompiler.ast.AST;
 import com.skiwi.bfcompiler.ast.ASTNode;
 import com.skiwi.bfcompiler.expression.Expression;
+import com.skiwi.bfcompiler.expression.IntegerExpression;
 import com.skiwi.bfcompiler.expression.RootExpression;
 import com.skiwi.bfcompiler.expression.intermediate.MemoryInputExpression;
 import com.skiwi.bfcompiler.expression.intermediate.MemoryOutputExpression;
@@ -28,32 +29,28 @@ public class IntermediateCodeGenerator {
     private ASTNode sourceToIntermediateNode(final ASTNode node) {
         Expression expression = node.getExpression();
         if (expression instanceof RootExpression) {
-            ASTNode newNode = new ASTNode(new RootExpression());
-            node.getChildren().forEach(n -> newNode.addChild(sourceToIntermediateNode(n)));
-            return newNode;
+            return ASTNode.newWithMappedChildren(new RootExpression(), node.getChildren(), this::sourceToIntermediateNode);
         }
-        else if (expression instanceof PointerRightExpression) {
-            return new ASTNode(new MemoryPointerChangeExpression(1));
+        if (expression instanceof PointerRightExpression) {
+            return ASTNode.newWithChild(new MemoryPointerChangeExpression(), new ASTNode(new IntegerExpression(1)));
         }
-        else if (expression instanceof PointerLeftExpression) {
-            return new ASTNode(new MemoryPointerChangeExpression(-1));
+        if (expression instanceof PointerLeftExpression) {
+            return ASTNode.newWithChild(new MemoryPointerChangeExpression(), new ASTNode(new IntegerExpression(-1)));
         }
-        else if (expression instanceof IncrementExpression) {
-            return new ASTNode(new MemoryValueChangeExpression(1));
+        if (expression instanceof IncrementExpression) {
+            return ASTNode.newWithChild(new MemoryValueChangeExpression(), new ASTNode(new IntegerExpression(1)));
         }
-        else if (expression instanceof DecrementExpression) {
-            return new ASTNode(new MemoryValueChangeExpression(-1));
+        if (expression instanceof DecrementExpression) {
+            return ASTNode.newWithChild(new MemoryValueChangeExpression(), new ASTNode(new IntegerExpression(-1)));
         }
-        else if (expression instanceof OutputExpression) {
+        if (expression instanceof OutputExpression) {
             return new ASTNode(new MemoryOutputExpression());
         }
-        else if (expression instanceof InputExpression) {
+        if (expression instanceof InputExpression) {
             return new ASTNode(new MemoryInputExpression());
         }
-        else if (expression instanceof LoopExpression) {
-            ASTNode newNode = new ASTNode(new MemoryLoopExpression());
-            node.getChildren().forEach(n -> newNode.addChild(sourceToIntermediateNode(n)));
-            return newNode;
+        if (expression instanceof LoopExpression) {
+            return ASTNode.newWithMappedChildren(new MemoryLoopExpression(), node.getChildren(), this::sourceToIntermediateNode);
         }
         throw new IllegalArgumentException("Node with unknown expression type: " + expression);
     }
