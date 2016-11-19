@@ -46,6 +46,13 @@ public class ASTNode {
         return expression;
     }
 
+    public <T extends Expression> T getExpression(final Class<T> clazz) {
+        if (clazz.isInstance(expression)) {
+            return clazz.cast(expression);
+        }
+        throw new IllegalStateException("Expression " + expression + " cannot be cast to class " + clazz);
+    }
+
     public ASTNode getParent() {
         return parent;
     }
