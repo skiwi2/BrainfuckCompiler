@@ -16,6 +16,7 @@ import com.skiwi.bfcompiler.expression.target.BssSectionExpression;
 import com.skiwi.bfcompiler.expression.target.CallExpression;
 import com.skiwi.bfcompiler.expression.target.DataSectionExpression;
 import com.skiwi.bfcompiler.expression.target.DefineByteExpression;
+import com.skiwi.bfcompiler.expression.target.DefineLabelExpression;
 import com.skiwi.bfcompiler.expression.target.DwordExpression;
 import com.skiwi.bfcompiler.expression.target.ExternExpression;
 import com.skiwi.bfcompiler.expression.target.FunctionExpression;
@@ -97,7 +98,8 @@ public class TargetCodeGenerator {
         ASTNode textSectionNode = new ASTNode(new TextSectionExpression());
         textSectionNode.addChild(ASTNode.newWithChild(new GlobalExpression(),
             ASTNode.newWithChild(new LabelExpression(), new ASTNode(new StringExpression("_main")))));
-        textSectionNode.addChild(ASTNode.newWithChild(new LabelExpression(), new ASTNode(new StringExpression("_main"))));
+        textSectionNode.addChild(ASTNode.newWithChild(new DefineLabelExpression(),
+            ASTNode.newWithChild(new LabelExpression(), new ASTNode(new StringExpression("_main")))));
         textSectionNode.addChild(ASTNode.newWithChildren(new MovExpression(), Arrays.asList(
             ASTNode.newWithChild(new OperandExpression(), new ASTNode(new RegisterExpression(Register.EBP))),
             ASTNode.newWithChild(new OperandExpression(), new ASTNode(new RegisterExpression(Register.ESP)))
@@ -141,7 +143,8 @@ public class TargetCodeGenerator {
             ASTNode.newWithChild(new OperandExpression(),
                 ASTNode.newWithChild(new LabelExpression(), new ASTNode(new StringExpression("normal_exit"))))));
 
-        textSectionNode.addChild(ASTNode.newWithChild(new LabelExpression(), new ASTNode(new StringExpression("error_exit_outofmemory"))));
+        textSectionNode.addChild(ASTNode.newWithChild(new DefineLabelExpression(),
+            ASTNode.newWithChild(new LabelExpression(), new ASTNode(new StringExpression("error_exit_outofmemory")))));
         textSectionNode.addChild(ASTNode.newWithChild(new PushExpression(),
             ASTNode.newWithChild(new OperandExpression(),
                 ASTNode.newWithChild(new IdentifierExpression(), new ASTNode(new StringExpression("write_mode"))))));
@@ -175,13 +178,15 @@ public class TargetCodeGenerator {
             ASTNode.newWithChild(new OperandExpression(),
                 ASTNode.newWithChild(new LabelExpression(), new ASTNode(new StringExpression("exit"))))));
 
-        textSectionNode.addChild(ASTNode.newWithChild(new LabelExpression(), new ASTNode(new StringExpression("normal_exit"))));
+        textSectionNode.addChild(ASTNode.newWithChild(new DefineLabelExpression(),
+            ASTNode.newWithChild(new LabelExpression(), new ASTNode(new StringExpression("normal_exit")))));
         textSectionNode.addChild(ASTNode.newWithChildren(new MovExpression(), Arrays.asList(
             ASTNode.newWithChild(new OperandExpression(), new ASTNode(new RegisterExpression(Register.EAX))),
             ASTNode.newWithChild(new OperandExpression(), new ASTNode(new IntegerExpression(0)))
         )));
 
-        textSectionNode.addChild(ASTNode.newWithChild(new LabelExpression(), new ASTNode(new StringExpression("exit"))));
+        textSectionNode.addChild(ASTNode.newWithChild(new DefineLabelExpression(),
+            ASTNode.newWithChild(new LabelExpression(), new ASTNode(new StringExpression("exit")))));
         textSectionNode.addChild(new ASTNode(new RetExpression()));
         rootNode.addChild(textSectionNode);
 
@@ -210,7 +215,8 @@ public class TargetCodeGenerator {
                     ASTNode.newWithChild(new JzExpression(),
                         ASTNode.newWithChild(new OperandExpression(),
                             ASTNode.newWithChild(new LabelExpression(), new ASTNode(new StringExpression("loop_end" + uniqueIndex))))),
-                    ASTNode.newWithChild(new LabelExpression(), new ASTNode(new StringExpression("loop_start" + uniqueIndex)))
+                    ASTNode.newWithChild(new DefineLabelExpression(),
+                        ASTNode.newWithChild(new LabelExpression(), new ASTNode(new StringExpression("loop_start" + uniqueIndex))))
                 ),
                 Stream.concat(
                     IntStream.range(0, node.getChildren().size())
@@ -229,7 +235,8 @@ public class TargetCodeGenerator {
                         ASTNode.newWithChild(new JnzExpression(),
                             ASTNode.newWithChild(new OperandExpression(),
                                 ASTNode.newWithChild(new LabelExpression(), new ASTNode(new StringExpression("loop_start" + uniqueIndex))))),
-                        ASTNode.newWithChild(new LabelExpression(), new ASTNode(new StringExpression("loop_end" + uniqueIndex)))
+                        ASTNode.newWithChild(new DefineLabelExpression(),
+                            ASTNode.newWithChild(new LabelExpression(), new ASTNode(new StringExpression("loop_end" + uniqueIndex))))
                     )
                 )
             );

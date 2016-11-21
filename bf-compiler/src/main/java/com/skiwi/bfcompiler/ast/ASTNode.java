@@ -66,6 +66,20 @@ public class ASTNode {
         return children;
     }
 
+    public ASTNode getChild(final int index, final Class<? extends Expression> clazz) {
+        ASTNode node = children.get(index);
+        Expression childExpression = node.getExpression();
+        if (!clazz.isInstance(childExpression)) {
+            throw new IllegalStateException("Expected child " + index + " to be of class " + clazz + ", but it is " + childExpression);
+        }
+        return node;
+    }
+
+    public <T extends Expression> T getChildExpression(final int index, final Class<T> clazz) {
+        ASTNode node = children.get(index);
+        return node.getExpression(clazz);
+    }
+
     protected Stream<String> prettyPrintStream(String prefix, boolean tail) {
         return Stream.concat(
             Stream.of(prefix + (tail ? "└── " : "├── ") + expression),
