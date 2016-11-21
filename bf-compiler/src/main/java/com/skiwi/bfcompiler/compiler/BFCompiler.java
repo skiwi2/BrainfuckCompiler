@@ -17,7 +17,8 @@ import java.util.stream.Stream;
 public class BFCompiler {
     public void compile(final Stream<String> targetCode, Path workingDirectory, String programName) throws IOException, InterruptedException {
         Path assemblyFile = workingDirectory.resolve(programName + ".asm");
-        Files.write(assemblyFile, (Iterable<String>)targetCode::iterator, StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW, StandardOpenOption.TRUNCATE_EXISTING);
+        Files.deleteIfExists(assemblyFile);
+        Files.write(assemblyFile, (Iterable<String>)targetCode::iterator, StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW);
 
         ProcessBuilder processBuilder = new ProcessBuilder().directory(workingDirectory.toFile()).redirectErrorStream(true);
 

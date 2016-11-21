@@ -1,7 +1,16 @@
 apply plugin: 'java'
+apply plugin: 'application'
 
 sourceCompatibility = 1.8
 version = '0.1-SNAPSHOT'
+
+mainClassName = "com.skiwi.bfcompiler.main.Main"
+
+jar {
+    manifest {
+        attributes "Main-Class": "com.skiwi.bfcompiler.main.Main"
+    }
+}
 
 repositories {
     mavenCentral()
