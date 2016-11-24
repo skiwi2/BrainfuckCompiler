@@ -26,36 +26,36 @@ public class IntermediateCodeOptimizer {
 
         node.getChildren().forEach(this::optimizeNode);
 
-        // Find consecutive MemoryPointerChangeExpression and MemoryValueChangeExpression nodes
         ListIterator<ASTNode> listIterator = node.getChildren().listIterator();
         while (listIterator.hasNext()) {
             ASTNode sentinel = listIterator.next();
-            int consecutiveNodes = 1;
-            int changeAmount = (sentinel.getExpression() instanceof MemoryPointerChangeExpression || sentinel.getExpression() instanceof MemoryValueChangeExpression)
-                ? sentinel.getChildExpression(0, IntegerExpression.class).getInteger()
-                : 0;
 
-            while (listIterator.hasNext()) {
-                ASTNode next = listIterator.next();
-                if (!(next.getExpression() instanceof MemoryPointerChangeExpression && sentinel.getExpression() instanceof MemoryPointerChangeExpression)
-                    && !(next.getExpression() instanceof MemoryValueChangeExpression && sentinel.getExpression() instanceof MemoryValueChangeExpression)) {
-                    listIterator.previous();
-                    break;
+            // Find consecutive MemoryPointerChangeExpression and MemoryValueChangeExpression nodes
+            if (sentinel.getExpression() instanceof MemoryPointerChangeExpression || sentinel.getExpression() instanceof MemoryValueChangeExpression) {
+                int consecutiveNodes = 1;
+                int changeAmount = sentinel.getChildExpression(0, IntegerExpression.class).getInteger();
+
+                while (listIterator.hasNext()) {
+                    ASTNode next = listIterator.next();
+                    if (!next.getExpression().getClass().equals(sentinel.getExpression().getClass())) {
+                        listIterator.previous();
+                        break;
+                    }
+
+                    consecutiveNodes++;
+                    changeAmount += next.getChildExpression(0, IntegerExpression.class).getInteger();
+                    next.detach();
+                    listIterator.remove();
                 }
 
-                consecutiveNodes++;
-                changeAmount += next.getChildExpression(0, IntegerExpression.class).getInteger();
-                next.detach();
-                listIterator.remove();
-            }
-
-            if (consecutiveNodes >= 2) {
-                listIterator.previous();
-                Expression newExpression = (sentinel.getExpression() instanceof MemoryPointerChangeExpression)
-                    ? new MemoryPointerChangeExpression() : new MemoryValueChangeExpression();
-                ASTNode newNode = ASTNode.newWithChild(newExpression, new ASTNode(new IntegerExpression(changeAmount)));
-                newNode.setParent(node);
-                listIterator.set(newNode);
+                if (consecutiveNodes >= 2) {
+                    listIterator.previous();
+                    Expression newExpression = (sentinel.getExpression() instanceof MemoryPointerChangeExpression)
+                        ? new MemoryPointerChangeExpression() : new MemoryValueChangeExpression();
+                    ASTNode newNode = ASTNode.newWithChild(newExpression, new ASTNode(new IntegerExpression(changeAmount)));
+                    newNode.setParent(node);
+                    listIterator.set(newNode);
+                }
             }
         }
     }
