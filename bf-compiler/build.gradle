@@ -25,3 +25,7 @@ task copyTestResources(type: Copy) {
     into "${buildDir}/classes/test"
 }
 processTestResources.dependsOn copyTestResources
+
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
