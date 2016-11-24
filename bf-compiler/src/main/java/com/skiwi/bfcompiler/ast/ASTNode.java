@@ -53,6 +53,10 @@ public class ASTNode {
         throw new IllegalStateException("Expression " + expression + " cannot be cast to class " + clazz);
     }
 
+    public void setParent(final ASTNode parent) {
+        this.parent = parent;
+    }
+
     public ASTNode getParent() {
         return parent;
     }
@@ -78,6 +82,10 @@ public class ASTNode {
     public <T extends Expression> T getChildExpression(final int index, final Class<T> clazz) {
         ASTNode node = children.get(index);
         return node.getExpression(clazz);
+    }
+
+    public void detach() {
+        parent = null;
     }
 
     protected Stream<String> prettyPrintStream(String prefix, boolean tail) {
