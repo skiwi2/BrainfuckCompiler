@@ -6,10 +6,13 @@ import com.skiwi.bfcompiler.expression.Expression;
 import com.skiwi.bfcompiler.expression.IntegerExpression;
 import com.skiwi.bfcompiler.expression.RootExpression;
 import com.skiwi.bfcompiler.expression.StringExpression;
+import com.skiwi.bfcompiler.expression.intermediate.MemoryAddMultipleOfStoredValueExpression;
 import com.skiwi.bfcompiler.expression.intermediate.MemoryInputExpression;
 import com.skiwi.bfcompiler.expression.intermediate.MemoryLoopExpression;
 import com.skiwi.bfcompiler.expression.intermediate.MemoryOutputExpression;
 import com.skiwi.bfcompiler.expression.intermediate.MemoryPointerChangeExpression;
+import com.skiwi.bfcompiler.expression.intermediate.MemorySetValueExpression;
+import com.skiwi.bfcompiler.expression.intermediate.MemoryStoreCurrentValueExpression;
 import com.skiwi.bfcompiler.expression.intermediate.MemoryValueChangeExpression;
 import com.skiwi.bfcompiler.expression.target.AddExpression;
 import com.skiwi.bfcompiler.expression.target.BssSectionExpression;
@@ -28,6 +31,7 @@ import com.skiwi.bfcompiler.expression.target.JzExpression;
 import com.skiwi.bfcompiler.expression.target.LabelExpression;
 import com.skiwi.bfcompiler.expression.target.MemoryAddressExpression;
 import com.skiwi.bfcompiler.expression.target.MovExpression;
+import com.skiwi.bfcompiler.expression.target.MulExpression;
 import com.skiwi.bfcompiler.expression.target.OperandExpression;
 import com.skiwi.bfcompiler.expression.target.PushExpression;
 import com.skiwi.bfcompiler.expression.target.Register;
@@ -39,6 +43,7 @@ import com.skiwi.bfcompiler.expression.target.TestExpression;
 import com.skiwi.bfcompiler.expression.target.TextSectionExpression;
 import com.skiwi.bfcompiler.expression.target.ValueExpression;
 import com.skiwi.bfcompiler.expression.target.ValueListExpression;
+import com.skiwi.bfcompiler.expression.target.XorExpression;
 import com.skiwi.bfcompiler.options.BFOptions;
 
 import java.util.Arrays;
@@ -302,6 +307,71 @@ public class TargetCodeGenerator {
                 ASTNode.newWithChildren(new AddExpression(), Arrays.asList(
                     ASTNode.newWithChild(new OperandExpression(), new ASTNode(new RegisterExpression(Register.ESP))),
                     ASTNode.newWithChild(new OperandExpression(), new ASTNode(new IntegerExpression(4)))
+                ))
+            );
+        }
+        if (expression instanceof MemoryStoreCurrentValueExpression) {
+            return Stream.of(
+                ASTNode.newWithChildren(new MovExpression(), Arrays.asList(
+                    ASTNode.newWithChild(new OperandExpression(), new ASTNode(new RegisterExpression(Register.BL))),
+                    ASTNode.newWithChild(new OperandExpression(),
+                        ASTNode.newWithChild(new MemoryAddressExpression(), new ASTNode(new RegisterExpression(Register.EDI))))
+                ))
+            );
+        }
+        if (expression instanceof MemorySetValueExpression) {
+            int value = node.getChildren().get(0).getExpression(IntegerExpression.class).getInteger();
+            if (value == 0) {
+                return Stream.of(
+                    ASTNode.newWithChildren(new XorExpression(), Arrays.asList(
+                        ASTNode.newWithChild(new OperandExpression(), new ASTNode(new RegisterExpression(Register.AL))),
+                        ASTNode.newWithChild(new OperandExpression(), new ASTNode(new RegisterExpression(Register.AL)))
+                    )),
+                    ASTNode.newWithChildren(new MovExpression(), Arrays.asList(
+                        ASTNode.newWithChild(new OperandExpression(),
+                            ASTNode.newWithChild(new MemoryAddressExpression(), new ASTNode(new RegisterExpression(Register.EDI)))),
+                        ASTNode.newWithChild(new OperandExpression(), new ASTNode(new RegisterExpression(Register.AL)))
+                    ))
+                );
+            }
+            else {
+                return Stream.of(
+                    ASTNode.newWithChildren(new MovExpression(), Arrays.asList(
+                        ASTNode.newWithChild(new OperandExpression(), new ASTNode(new RegisterExpression(Register.AL))),
+                        ASTNode.newWithChild(new OperandExpression(), new ASTNode(new IntegerExpression(value)))
+                    )),
+                    ASTNode.newWithChildren(new MovExpression(), Arrays.asList(
+                        ASTNode.newWithChild(new OperandExpression(),
+                            ASTNode.newWithChild(new MemoryAddressExpression(), new ASTNode(new RegisterExpression(Register.EDI)))),
+                        ASTNode.newWithChild(new OperandExpression(), new ASTNode(new RegisterExpression(Register.AL)))
+                    ))
+                );
+            }
+        }
+        if (expression instanceof MemoryAddMultipleOfStoredValueExpression) {
+            int multipleOf = node.getChildren().get(0).getExpression(IntegerExpression.class).getInteger();
+            //TODO should also do something with the data of something else
+
+            // MOV AL, multipleOf
+            // MUL BL
+            // ADD AL, [EDI]
+            // MOV [EDI], AL
+            return Stream.of(
+                ASTNode.newWithChildren(new MovExpression(), Arrays.asList(
+                    ASTNode.newWithChild(new OperandExpression(), new ASTNode(new RegisterExpression(Register.AL))),
+                    ASTNode.newWithChild(new OperandExpression(), new ASTNode(new IntegerExpression(multipleOf)))
+                )),
+                ASTNode.newWithChild(new MulExpression(),
+                    ASTNode.newWithChild(new OperandExpression(), new ASTNode(new RegisterExpression(Register.BL)))),
+                ASTNode.newWithChildren(new AddExpression(), Arrays.asList(
+                    ASTNode.newWithChild(new OperandExpression(), new ASTNode(new RegisterExpression(Register.AL))),
+                    ASTNode.newWithChild(new OperandExpression(),
+                        ASTNode.newWithChild(new MemoryAddressExpression(), new ASTNode(new RegisterExpression(Register.EDI))))
+                )),
+                ASTNode.newWithChildren(new MovExpression(), Arrays.asList(
+                    ASTNode.newWithChild(new OperandExpression(),
+                        ASTNode.newWithChild(new MemoryAddressExpression(), new ASTNode(new RegisterExpression(Register.EDI)))),
+                    ASTNode.newWithChild(new OperandExpression(), new ASTNode(new RegisterExpression(Register.AL)))
                 ))
             );
         }

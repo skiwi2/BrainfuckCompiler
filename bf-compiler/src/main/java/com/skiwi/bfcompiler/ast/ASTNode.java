@@ -88,6 +88,10 @@ public class ASTNode {
         parent = null;
     }
 
+    public Stream<String> prettyPrintStream() {
+        return prettyPrintStream("", children.isEmpty());
+    }
+
     protected Stream<String> prettyPrintStream(String prefix, boolean tail) {
         return Stream.concat(
             Stream.of(prefix + (tail ? "└── " : "├── ") + expression),

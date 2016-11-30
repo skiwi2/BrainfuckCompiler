@@ -22,7 +22,6 @@ import java.nio.file.Paths;
 public class Main {
     public static void main(final String[] args) throws IOException, InterruptedException {
         Path currentWorkingDirectory = Paths.get(".").toAbsolutePath().normalize();
-        System.out.println("currentWorkingDirectory = " + currentWorkingDirectory);
 
         if (args.length == 0) {
             throw new IllegalStateException("Expected the Brainfuck source file as first argument.");

@@ -23,6 +23,7 @@ import com.skiwi.bfcompiler.expression.target.JzExpression;
 import com.skiwi.bfcompiler.expression.target.LabelExpression;
 import com.skiwi.bfcompiler.expression.target.MemoryAddressExpression;
 import com.skiwi.bfcompiler.expression.target.MovExpression;
+import com.skiwi.bfcompiler.expression.target.MulExpression;
 import com.skiwi.bfcompiler.expression.target.OperandExpression;
 import com.skiwi.bfcompiler.expression.target.PushExpression;
 import com.skiwi.bfcompiler.expression.target.RegisterExpression;
@@ -32,6 +33,7 @@ import com.skiwi.bfcompiler.expression.target.TestExpression;
 import com.skiwi.bfcompiler.expression.target.TextSectionExpression;
 import com.skiwi.bfcompiler.expression.target.ValueExpression;
 import com.skiwi.bfcompiler.expression.target.ValueListExpression;
+import com.skiwi.bfcompiler.expression.target.XorExpression;
 
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -134,6 +136,15 @@ public class TargetCodeWriter {
         }
         if (expression instanceof RetExpression) {
             return Stream.of("ret");
+        }
+        if (expression instanceof XorExpression) {
+            String operand1 = resolveOperand(node.getChild(0, OperandExpression.class));
+            String operand2 = resolveOperand(node.getChild(1, OperandExpression.class));
+            return Stream.of("xor " + operand1 + ", " + operand2);
+        }
+        if (expression instanceof MulExpression) {
+            String operand = resolveOperand(node.getChild(0, OperandExpression.class));
+            return Stream.of("mul " + operand);
         }
         throw new IllegalStateException("Unsupported expression: " + expression);
     }
