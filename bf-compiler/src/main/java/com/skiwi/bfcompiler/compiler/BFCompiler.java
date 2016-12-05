@@ -20,19 +20,23 @@ public class BFCompiler {
         Files.deleteIfExists(assemblyFile);
         Files.write(assemblyFile, (Iterable<String>)targetCode::iterator, StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW);
 
+        // important!
+        // we need to read both the output and error stream because the native OS may provide a limited buffer size and then the process.waitFor() call will never return
+        // we also need to use redirectErrorStream(true) if we want to keep this on a single thread
         ProcessBuilder processBuilder = new ProcessBuilder().directory(workingDirectory.toFile()).redirectErrorStream(true);
 
         Process nasmProcess = processBuilder.command("nasm", "-f", "win32", assemblyFile.getFileName().toString()).start();
-        nasmProcess.waitFor();
         List<String> nasmOutput = ProcessUtils.toInputStream(nasmProcess.getInputStream());
+        nasmProcess.waitFor();
         if (!nasmOutput.isEmpty()) {
             throw new IllegalStateException("Compiling failed when invoking NASM: " + String.join(System.lineSeparator(), nasmOutput));
         }
 
         Process gccProcess = processBuilder.command("gcc", "-o", programName, programName + ".obj").start();
+        List<String> gccOutput = ProcessUtils.toInputStream(nasmProcess.getInputStream());
         gccProcess.waitFor();
-        if (!nasmOutput.isEmpty()) {
-            throw new IllegalStateException("Compiling failed when invoking GCC: " + String.join(System.lineSeparator(), nasmOutput));
+        if (!gccOutput.isEmpty()) {
+            throw new IllegalStateException("Compiling failed when invoking GCC: " + String.join(System.lineSeparator(), gccOutput));
         }
     }
 }
