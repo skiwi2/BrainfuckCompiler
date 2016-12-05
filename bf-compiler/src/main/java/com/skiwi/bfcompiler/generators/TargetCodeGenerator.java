@@ -16,6 +16,7 @@ import com.skiwi.bfcompiler.expression.intermediate.MemoryStoreCurrentValueExpre
 import com.skiwi.bfcompiler.expression.intermediate.MemoryValueChangeExpression;
 import com.skiwi.bfcompiler.expression.target.AddExpression;
 import com.skiwi.bfcompiler.expression.target.BssSectionExpression;
+import com.skiwi.bfcompiler.expression.target.ByteExpression;
 import com.skiwi.bfcompiler.expression.target.CallExpression;
 import com.skiwi.bfcompiler.expression.target.DataSectionExpression;
 import com.skiwi.bfcompiler.expression.target.DefineByteExpression;
@@ -264,19 +265,11 @@ public class TargetCodeGenerator {
                 return Stream.empty();
             }
             return Stream.of(
-                ASTNode.newWithChildren(new MovExpression(), Arrays.asList(
-                    ASTNode.newWithChild(new OperandExpression(), new ASTNode(new RegisterExpression(Register.AL))),
-                    ASTNode.newWithChild(new OperandExpression(),
-                        ASTNode.newWithChild(new MemoryAddressExpression(), new ASTNode(new RegisterExpression(Register.EDI))))
-                )),
                 ASTNode.newWithChildren(new AddExpression(), Arrays.asList(
-                    ASTNode.newWithChild(new OperandExpression(), new ASTNode(new RegisterExpression(Register.AL))),
-                    ASTNode.newWithChild(new OperandExpression(), new ASTNode(new IntegerExpression(changeValue)))
-                )),
-                ASTNode.newWithChildren(new MovExpression(), Arrays.asList(
                     ASTNode.newWithChild(new OperandExpression(),
-                        ASTNode.newWithChild(new MemoryAddressExpression(), new ASTNode(new RegisterExpression(Register.EDI)))),
-                    ASTNode.newWithChild(new OperandExpression(), new ASTNode(new RegisterExpression(Register.AL)))
+                        ASTNode.newWithChild(new ByteExpression(),
+                            ASTNode.newWithChild(new MemoryAddressExpression(), new ASTNode(new RegisterExpression(Register.EDI))))),
+                    ASTNode.newWithChild(new OperandExpression(), new ASTNode(new IntegerExpression(changeValue)))
                 ))
             );
         }
@@ -321,32 +314,14 @@ public class TargetCodeGenerator {
         }
         if (expression instanceof MemorySetValueExpression) {
             int value = node.getChildren().get(0).getExpression(IntegerExpression.class).getInteger();
-            if (value == 0) {
-                return Stream.of(
-                    ASTNode.newWithChildren(new XorExpression(), Arrays.asList(
-                        ASTNode.newWithChild(new OperandExpression(), new ASTNode(new RegisterExpression(Register.AL))),
-                        ASTNode.newWithChild(new OperandExpression(), new ASTNode(new RegisterExpression(Register.AL)))
-                    )),
-                    ASTNode.newWithChildren(new MovExpression(), Arrays.asList(
-                        ASTNode.newWithChild(new OperandExpression(),
-                            ASTNode.newWithChild(new MemoryAddressExpression(), new ASTNode(new RegisterExpression(Register.EDI)))),
-                        ASTNode.newWithChild(new OperandExpression(), new ASTNode(new RegisterExpression(Register.AL)))
-                    ))
-                );
-            }
-            else {
-                return Stream.of(
-                    ASTNode.newWithChildren(new MovExpression(), Arrays.asList(
-                        ASTNode.newWithChild(new OperandExpression(), new ASTNode(new RegisterExpression(Register.AL))),
-                        ASTNode.newWithChild(new OperandExpression(), new ASTNode(new IntegerExpression(value)))
-                    )),
-                    ASTNode.newWithChildren(new MovExpression(), Arrays.asList(
-                        ASTNode.newWithChild(new OperandExpression(),
-                            ASTNode.newWithChild(new MemoryAddressExpression(), new ASTNode(new RegisterExpression(Register.EDI)))),
-                        ASTNode.newWithChild(new OperandExpression(), new ASTNode(new RegisterExpression(Register.AL)))
-                    ))
-                );
-            }
+            return Stream.of(
+                ASTNode.newWithChildren(new MovExpression(), Arrays.asList(
+                    ASTNode.newWithChild(new OperandExpression(),
+                        ASTNode.newWithChild(new ByteExpression(),
+                            ASTNode.newWithChild(new MemoryAddressExpression(), new ASTNode(new RegisterExpression(Register.EDI))))),
+                    ASTNode.newWithChild(new OperandExpression(), new ASTNode(new IntegerExpression(value)))
+                ))
+            );
         }
         if (expression instanceof MemoryAddMultipleOfStoredValueExpression) {
             int multipleOf = node.getChildren().get(0).getExpression(IntegerExpression.class).getInteger();
@@ -354,8 +329,7 @@ public class TargetCodeGenerator {
 
             // MOV AL, multipleOf
             // MUL BL
-            // ADD AL, [EDI]
-            // MOV [EDI], AL
+            // ADD [EDI], AL
             return Stream.of(
                 ASTNode.newWithChildren(new MovExpression(), Arrays.asList(
                     ASTNode.newWithChild(new OperandExpression(), new ASTNode(new RegisterExpression(Register.AL))),
@@ -364,11 +338,6 @@ public class TargetCodeGenerator {
                 ASTNode.newWithChild(new MulExpression(),
                     ASTNode.newWithChild(new OperandExpression(), new ASTNode(new RegisterExpression(Register.BL)))),
                 ASTNode.newWithChildren(new AddExpression(), Arrays.asList(
-                    ASTNode.newWithChild(new OperandExpression(), new ASTNode(new RegisterExpression(Register.AL))),
-                    ASTNode.newWithChild(new OperandExpression(),
-                        ASTNode.newWithChild(new MemoryAddressExpression(), new ASTNode(new RegisterExpression(Register.EDI))))
-                )),
-                ASTNode.newWithChildren(new MovExpression(), Arrays.asList(
                     ASTNode.newWithChild(new OperandExpression(),
                         ASTNode.newWithChild(new MemoryAddressExpression(), new ASTNode(new RegisterExpression(Register.EDI)))),
                     ASTNode.newWithChild(new OperandExpression(), new ASTNode(new RegisterExpression(Register.AL)))

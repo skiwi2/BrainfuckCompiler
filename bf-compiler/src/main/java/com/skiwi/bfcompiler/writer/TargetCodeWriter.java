@@ -7,6 +7,7 @@ import com.skiwi.bfcompiler.expression.IntegerExpression;
 import com.skiwi.bfcompiler.expression.StringExpression;
 import com.skiwi.bfcompiler.expression.target.AddExpression;
 import com.skiwi.bfcompiler.expression.target.BssSectionExpression;
+import com.skiwi.bfcompiler.expression.target.ByteExpression;
 import com.skiwi.bfcompiler.expression.target.CallExpression;
 import com.skiwi.bfcompiler.expression.target.DataSectionExpression;
 import com.skiwi.bfcompiler.expression.target.DefineByteExpression;
@@ -204,6 +205,9 @@ public class TargetCodeWriter {
         }
         if (expression instanceof DwordExpression) {
             return "dword " + resolveOperand(node.getChild(0, Expression.class));
+        }
+        if (expression instanceof ByteExpression) {
+            return "byte " + resolveOperand(node.getChild(0, Expression.class));
         }
         if (expression instanceof IntegerExpression) {
             return resolveInteger(node);
