@@ -33,7 +33,7 @@ public class BFCompiler {
         }
 
         Process gccProcess = processBuilder.command("gcc", "-o", programName, programName + ".obj").start();
-        List<String> gccOutput = ProcessUtils.toInputStream(nasmProcess.getInputStream());
+        List<String> gccOutput = ProcessUtils.toInputStream(gccProcess.getInputStream());
         gccProcess.waitFor();
         if (!gccOutput.isEmpty()) {
             throw new IllegalStateException("Compiling failed when invoking GCC: " + String.join(System.lineSeparator(), gccOutput));
