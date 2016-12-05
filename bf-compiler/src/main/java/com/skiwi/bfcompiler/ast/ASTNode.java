@@ -4,6 +4,7 @@ import com.skiwi.bfcompiler.expression.Expression;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.BinaryOperator;
@@ -20,7 +21,7 @@ public class ASTNode {
 
     private ASTNode parent;
 
-    private final List<ASTNode> children = new ArrayList<>();
+    private final List<ASTNode> children = new LinkedList<>();
 
     public ASTNode(final Expression expression) {
         this.expression = expression;
