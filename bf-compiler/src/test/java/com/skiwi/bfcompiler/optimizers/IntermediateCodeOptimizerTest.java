@@ -19,6 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -38,7 +39,11 @@ public class IntermediateCodeOptimizerTest {
         LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer(sourceFile);
         SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer();
         IntermediateCodeGenerator intermediateCodeGenerator = new IntermediateCodeGenerator();
-        IntermediateCodeOptimizer intermediateCodeOptimizer = new IntermediateCodeOptimizer();
+        IntermediateCodeOptimizer intermediateCodeOptimizer = new IntermediateCodeOptimizer(Arrays.asList(
+            new MemoryValueOptimizeStrategy(),
+            new MemoryPointerOptimizeStrategy(),
+            new MemoryLoopOptimizeStrategy()
+        ));
         BFOptions bfOptions = new BFOptions.Builder().memoryCellAmount(30000).build();
         TargetCodeGenerator targetCodeGenerator = new TargetCodeGenerator(bfOptions);
         TargetCodeWriter targetCodeWriter = new TargetCodeWriter();

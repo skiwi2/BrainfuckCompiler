@@ -7,6 +7,9 @@ import com.skiwi.bfcompiler.compiler.BFCompiler;
 import com.skiwi.bfcompiler.generators.IntermediateCodeGenerator;
 import com.skiwi.bfcompiler.generators.TargetCodeGenerator;
 import com.skiwi.bfcompiler.optimizers.IntermediateCodeOptimizer;
+import com.skiwi.bfcompiler.optimizers.MemoryLoopOptimizeStrategy;
+import com.skiwi.bfcompiler.optimizers.MemoryPointerOptimizeStrategy;
+import com.skiwi.bfcompiler.optimizers.MemoryValueOptimizeStrategy;
 import com.skiwi.bfcompiler.options.BFOptions;
 import com.skiwi.bfcompiler.source.SourceFile;
 import com.skiwi.bfcompiler.writer.TargetCodeWriter;
@@ -15,6 +18,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 
 /**
  * @author Frank van Heeswijk
@@ -42,7 +46,11 @@ public class Main {
         LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer(bfSourceFile);
         SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer();
         IntermediateCodeGenerator intermediateCodeGenerator = new IntermediateCodeGenerator();
-        IntermediateCodeOptimizer intermediateCodeOptimizer = new IntermediateCodeOptimizer();
+        IntermediateCodeOptimizer intermediateCodeOptimizer = new IntermediateCodeOptimizer(Arrays.asList(
+            new MemoryValueOptimizeStrategy(),
+            new MemoryPointerOptimizeStrategy(),
+            new MemoryLoopOptimizeStrategy()
+        ));
         BFOptions bfOptions = new BFOptions.Builder().memoryCellAmount(30000).build();
         TargetCodeGenerator targetCodeGenerator = new TargetCodeGenerator(bfOptions);
         TargetCodeWriter targetCodeWriter = new TargetCodeWriter();
