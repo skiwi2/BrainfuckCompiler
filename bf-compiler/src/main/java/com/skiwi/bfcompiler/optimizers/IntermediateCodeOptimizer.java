@@ -11,10 +11,10 @@ import java.util.ListIterator;
  * @author Frank van Heeswijk
  */
 public class IntermediateCodeOptimizer {
-    private final List<OptimizeStrategy> optimizeStrategies = new ArrayList<>();
+    private final OptimizeStrategyOrder optimizeStrategyOrder;
 
-    public IntermediateCodeOptimizer(final List<OptimizeStrategy> optimizeStrategies) {
-        this.optimizeStrategies.addAll(optimizeStrategies);
+    public IntermediateCodeOptimizer(final OptimizeStrategyOrder optimizeStrategyOrder) {
+        this.optimizeStrategyOrder = optimizeStrategyOrder;
     }
 
     public void optimize(final AST intermediateAST) {
@@ -30,16 +30,15 @@ public class IntermediateCodeOptimizer {
         // branch into children first
         parentNode.getChildren().forEach(this::optimizeNode);
 
-        // reset all optimize strategies
-        optimizeStrategies.forEach(OptimizeStrategy::resetState);
+        // loop through children for each optimize strategy in order
+        for (OptimizeStrategy optimizeStrategy : optimizeStrategyOrder.getOptimizeStrategyOrder()) {
+            optimizeStrategy.resetState();
 
-        // loop through children
-        ListIterator<ASTNode> listIterator = parentNode.getChildren().listIterator();
-        while (listIterator.hasNext()) {
-            ASTNode sentinel = listIterator.next();
-            boolean sentinelIsLastNode = !listIterator.hasNext();
+            ListIterator<ASTNode> listIterator = parentNode.getChildren().listIterator();
+            while (listIterator.hasNext()) {
+                ASTNode sentinel = listIterator.next();
+                boolean sentinelIsLastNode = !listIterator.hasNext();
 
-            for (OptimizeStrategy optimizeStrategy : optimizeStrategies) {
                 OptimizeStrategyResult result = optimizeStrategy.processNode(sentinel, sentinelIsLastNode);
                 switch (result.getState()) {
                     case NOT_ACCEPTED:
@@ -86,8 +85,7 @@ public class IntermediateCodeOptimizer {
                         if (newNodes.isEmpty()) {
                             sentinel.detach();
                             listIterator.remove();
-                        }
-                        else {
+                        } else {
                             ListIterator<ASTNode> newNodesListIterator = newNodes.listIterator();
                             listIterator.set(newNodesListIterator.next());
                             while (newNodesListIterator.hasNext()) {

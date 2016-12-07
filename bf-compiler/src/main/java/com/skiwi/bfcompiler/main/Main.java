@@ -10,6 +10,7 @@ import com.skiwi.bfcompiler.optimizers.IntermediateCodeOptimizer;
 import com.skiwi.bfcompiler.optimizers.MemoryLoopOptimizeStrategy;
 import com.skiwi.bfcompiler.optimizers.MemoryPointerOptimizeStrategy;
 import com.skiwi.bfcompiler.optimizers.MemoryValueOptimizeStrategy;
+import com.skiwi.bfcompiler.optimizers.OptimizeStrategyOrder;
 import com.skiwi.bfcompiler.options.BFOptions;
 import com.skiwi.bfcompiler.source.SourceFile;
 import com.skiwi.bfcompiler.writer.TargetCodeWriter;
@@ -46,11 +47,19 @@ public class Main {
         LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer(bfSourceFile);
         SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer();
         IntermediateCodeGenerator intermediateCodeGenerator = new IntermediateCodeGenerator();
-        IntermediateCodeOptimizer intermediateCodeOptimizer = new IntermediateCodeOptimizer(Arrays.asList(
-            new MemoryValueOptimizeStrategy(),
-            new MemoryPointerOptimizeStrategy(),
-            new MemoryLoopOptimizeStrategy()
-        ));
+        IntermediateCodeOptimizer intermediateCodeOptimizer = new IntermediateCodeOptimizer(
+            new OptimizeStrategyOrder.Builder()
+                .then(Arrays.asList(
+                    new MemoryValueOptimizeStrategy(),
+                    new MemoryPointerOptimizeStrategy()
+                ))
+                .then(new MemoryLoopOptimizeStrategy())
+                .then(Arrays.asList(
+                    new MemoryValueOptimizeStrategy(),
+                    new MemoryPointerOptimizeStrategy()
+                ))
+                .build());  // first optimize value and pointer for improved speed, then optimize memory loop,
+                            // then optimize value and pointer once more because memory loop may have added some
         BFOptions bfOptions = new BFOptions.Builder().memoryCellAmount(30000).build();
         TargetCodeGenerator targetCodeGenerator = new TargetCodeGenerator(bfOptions);
         TargetCodeWriter targetCodeWriter = new TargetCodeWriter();

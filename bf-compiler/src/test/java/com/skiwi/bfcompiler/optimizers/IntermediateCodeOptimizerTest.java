@@ -39,11 +39,19 @@ public class IntermediateCodeOptimizerTest {
         LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer(sourceFile);
         SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer();
         IntermediateCodeGenerator intermediateCodeGenerator = new IntermediateCodeGenerator();
-        IntermediateCodeOptimizer intermediateCodeOptimizer = new IntermediateCodeOptimizer(Arrays.asList(
-            new MemoryValueOptimizeStrategy(),
-            new MemoryPointerOptimizeStrategy(),
-            new MemoryLoopOptimizeStrategy()
-        ));
+        IntermediateCodeOptimizer intermediateCodeOptimizer = new IntermediateCodeOptimizer(
+            new OptimizeStrategyOrder.Builder()
+                .then(Arrays.asList(
+                    new MemoryValueOptimizeStrategy(),
+                    new MemoryPointerOptimizeStrategy()
+                ))
+                .then(new MemoryLoopOptimizeStrategy())
+                .then(Arrays.asList(
+                    new MemoryValueOptimizeStrategy(),
+                    new MemoryPointerOptimizeStrategy()
+                ))
+                .build());  // first optimize value and pointer for improved speed, then optimize memory loop,
+        // then optimize value and pointer once more because memory loop may have added some
         BFOptions bfOptions = new BFOptions.Builder().memoryCellAmount(30000).build();
         TargetCodeGenerator targetCodeGenerator = new TargetCodeGenerator(bfOptions);
         TargetCodeWriter targetCodeWriter = new TargetCodeWriter();
