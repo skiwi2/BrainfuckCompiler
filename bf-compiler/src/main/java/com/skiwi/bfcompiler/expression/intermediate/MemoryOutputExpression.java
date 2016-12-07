@@ -7,6 +7,11 @@ import com.skiwi.bfcompiler.expression.Expression;
  */
 public class MemoryOutputExpression implements Expression {
     @Override
+    public boolean isLogicalLeafExpression() {
+        return true;
+    }
+
+    @Override
     public String toString() {
         return "MemoryOutput";
     }

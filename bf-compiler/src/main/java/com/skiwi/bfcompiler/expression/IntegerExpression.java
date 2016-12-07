@@ -17,6 +17,11 @@ public class IntegerExpression implements Expression {
     }
 
     @Override
+    public boolean isLogicalLeafExpression() {
+        return true;
+    }
+
+    @Override
     public String toString() {
         return "Integer(" + integer + ")";
     }

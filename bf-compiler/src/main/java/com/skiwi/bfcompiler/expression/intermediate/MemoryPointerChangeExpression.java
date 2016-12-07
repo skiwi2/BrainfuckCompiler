@@ -9,6 +9,11 @@ import java.util.Objects;
  */
 public class MemoryPointerChangeExpression implements Expression {
     @Override
+    public boolean isLogicalLeafExpression() {
+        return true;
+    }
+
+    @Override
     public String toString() {
         return "MemoryPointerChange";
     }

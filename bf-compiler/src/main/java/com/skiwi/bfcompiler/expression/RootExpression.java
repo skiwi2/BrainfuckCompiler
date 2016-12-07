@@ -5,6 +5,11 @@ package com.skiwi.bfcompiler.expression;
  */
 public class RootExpression implements Expression {
     @Override
+    public boolean isLogicalLeafExpression() {
+        return false;
+    }
+
+    @Override
     public String toString() {
         return "Root";
     }

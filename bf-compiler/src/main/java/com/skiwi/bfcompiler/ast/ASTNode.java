@@ -67,6 +67,10 @@ public class ASTNode {
         node.parent = this;
     }
 
+    public boolean isLogicalLeafNode() {
+        return expression.isLogicalLeafExpression();
+    }
+
     public List<ASTNode> getChildren() {
         return children;
     }

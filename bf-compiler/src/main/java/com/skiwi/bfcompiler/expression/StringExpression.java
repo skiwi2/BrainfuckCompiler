@@ -17,6 +17,11 @@ public class StringExpression implements Expression {
     }
 
     @Override
+    public boolean isLogicalLeafExpression() {
+        return true;
+    }
+
+    @Override
     public String toString() {
         return "String(" + string + ")";
     }

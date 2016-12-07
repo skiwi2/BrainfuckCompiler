@@ -22,8 +22,7 @@ public class IntermediateCodeOptimizer {
     }
 
     private void optimizeNode(final ASTNode parentNode) {
-        if (parentNode.getChildren().isEmpty()) {
-            // TODO change this check to a logical has no children, as a node with IntegerExpression should not count as a child
+        if (parentNode.isLogicalLeafNode()) {
             return;
         }
 

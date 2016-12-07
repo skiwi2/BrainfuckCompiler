@@ -7,6 +7,11 @@ import com.skiwi.bfcompiler.expression.Expression;
  */
 public class LoopExpression implements Expression {
     @Override
+    public boolean isLogicalLeafExpression() {
+        return false;
+    }
+
+    @Override
     public String toString() {
         return "Loop";
     }
